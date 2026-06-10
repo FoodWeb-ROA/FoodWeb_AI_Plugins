@@ -1,0 +1,31 @@
+{
+  "name": "foodweb-ai-plugins",
+  "owner": {
+    "name": "FoodWeb",
+    "email": "arnav@foodweb.ai"
+  },
+  "metadata": {
+    "description": "FoodWeb's internal Claude Code plugin marketplace.",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "superpowers-foodweb",
+      "source": "./superpowers-foodweb",
+      "description": "FoodWeb fork of obra/superpowers: skills for TDD, debugging, planning, and multi-agent orchestration. Customized for FoodWeb — worktrees pinned to .worktrees/ and opt-in only, dynamic-workflow-aware execution, generic (platform-agnostic) tooling.",
+      "version": "5.0.7",
+      "author": {
+        "name": "FoodWeb",
+        "email": "arnav@foodweb.ai"
+      },
+      "keywords": [
+        "skills",
+        "tdd",
+        "debugging",
+        "planning",
+        "workflows",
+        "foodweb"
+      ]
+    }
+  ]
+}

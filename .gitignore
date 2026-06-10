@@ -1,0 +1,6 @@
+# Editor local history
+.history/
+
+# OS / editor cruft
+.DS_Store
+*.swp

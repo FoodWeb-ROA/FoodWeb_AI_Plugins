@@ -1,0 +1,19 @@
+{
+  "name": "superpowers-foodweb",
+  "description": "FoodWeb fork of obra/superpowers: skills for TDD, debugging, planning, and multi-agent orchestration, customized for FoodWeb workflows.",
+  "version": "5.0.7",
+  "author": {
+    "name": "FoodWeb",
+    "email": "arnav@foodweb.ai"
+  },
+  "homepage": "https://github.com/obra/superpowers",
+  "license": "MIT",
+  "keywords": [
+    "skills",
+    "tdd",
+    "debugging",
+    "planning",
+    "workflows",
+    "foodweb"
+  ]
+}
