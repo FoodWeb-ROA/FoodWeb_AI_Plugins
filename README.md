@@ -30,8 +30,24 @@ Restart Claude Code (or `/plugin` → reload) and confirm with `/plugin` that
 
 ## Team distribution
 
-See [DISTRIBUTION.md](./DISTRIBUTION.md) for rolling this out across the team's
-Claude Code instances (auto-install via repo settings, version pinning, updates).
+Consuming repos (ROA, ROA_FoodWeb) declare this marketplace and enable the plugin
+in their project `.claude/settings.json`, so teammates are prompted to install on
+trusting the project folder — no manual `/plugin` commands:
+
+```json
+{
+  "extraKnownMarketplaces": {
+    "foodweb-ai-plugins": {
+      "source": { "source": "github", "repo": "FoodWeb-ROA/FoodWeb_AI_Plugins" }
+    }
+  },
+  "enabledPlugins": { "superpowers-foodweb@foodweb-ai-plugins": true }
+}
+```
+
+Updates: bump `version` in `plugin.json` + `marketplace.json`, push, then
+`/plugin marketplace update foodweb-ai-plugins`. Private repo works — Claude Code
+clones via each developer's git credentials (org members have access).
 
 ## Repo layout
 
