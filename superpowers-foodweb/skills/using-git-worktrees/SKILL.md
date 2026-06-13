@@ -13,13 +13,24 @@ Git worktrees create isolated workspaces sharing the same repository, allowing w
 
 **Announce at start:** "I'm using the using-git-worktrees skill to set up an isolated workspace."
 
-## Precondition: Opt-In Only
+## Precondition: Local Session + Opt-In Only
 
-Worktrees are **opt-in**. Use this skill ONLY when the user explicitly asked to work in a worktree at the start of the session.
+Worktrees are for **local sessions only**, and they are **opt-in**. Use this skill ONLY when BOTH hold:
+
+1. You are working in a local session (not a remote/cloud session), AND
+2. The user explicitly asked to work in a worktree at the start of the session.
 
 - Do NOT create a worktree by default.
+- Do NOT create a worktree in a remote session — remote sessions work on a feature branch instead (see Branch Creation Policy below).
 - Do NOT stop to ask whether a worktree is wanted — if the user didn't request one, skip worktree setup entirely and work in the current checkout.
 - A skill that lists this one as "required" is satisfied by the current workspace when no worktree was requested. Proceed without isolation.
+
+## Branch Creation Policy
+
+**Never create a feature branch in a local session.** Feature branches are created only in remote/cloud sessions.
+
+- **Local session:** work in the current checkout on the current branch. The ONLY way to create a branch locally is the explicitly-requested worktree above (its `-b <BRANCH_NAME>` is the sanctioned exception).
+- **Remote session:** create the feature branch as normal; do NOT create a worktree.
 
 ## Directory Location
 
