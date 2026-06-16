@@ -26,8 +26,8 @@ You MUST create a task for each of these items and complete them in order:
 3. **Propose 2-3 approaches** — with trade-offs and your recommendation
 4. **Present design** — in sections scaled to their complexity, get user approval after each section
 5. **Write spec doc** — the spec is the **skeleton of the implementation plan**: one `.md` file with the section structure the plan will fill in. writing-plans expands this same file in place. Use the cursor plan tool for large projects/refactors.
-6. **Spec self-review** — quick inline check for placeholders, contradictions, ambiguity, scope (see below). Track any decisions you made while writing that the user has NOT already confirmed.
-7. **Conditional review gate** — stop for user review ONLY if the spec contains unconfirmed decisions discovered during writing (see Conditional Review Gate). Otherwise skip straight to step 8.
+6. **Spec self-review** — quick inline check for placeholders, contradictions, ambiguity, scope (see below). Fix everything inline. Then flag ONLY the **consequential open decisions** or **genuinely new open questions** that survive — most specs have none (see the bar in Conditional Review Gate). Routine choices don't count; when truly unsure, ask.
+7. **Conditional review gate** — proceeding is the default; the spec should be fine and match what was discussed with the user, functionality- and implementation-wise. Stop for user review ONLY if (a) a consequential open decision survived the self-review, or (b) a new, significant open question with more than one viable path forward arose while writing. If you are genuinely unsure whether to stop, ask. Otherwise go straight to step 8. (See Conditional Review Gate.)
 8. **Transition to implementation** — invoke writing-plans skill to expand the spec file into the implementation plan
 
 ## Process Flow
@@ -41,7 +41,7 @@ digraph brainstorming {
     "User approves design?" [shape=diamond];
     "Write spec doc\n(skeleton of plan)" [shape=box];
     "Spec self-review\n(fix inline)" [shape=box];
-    "Unconfirmed decisions\nin spec?" [shape=diamond];
+    "Open decision or\nnew question?" [shape=diamond];
     "User reviews spec?" [shape=diamond];
     "Invoke writing-plans skill" [shape=doublecircle];
 
@@ -52,9 +52,9 @@ digraph brainstorming {
     "User approves design?" -> "Present design sections" [label="no, revise"];
     "User approves design?" -> "Write spec doc\n(skeleton of plan)" [label="yes"];
     "Write spec doc\n(skeleton of plan)" -> "Spec self-review\n(fix inline)";
-    "Spec self-review\n(fix inline)" -> "Unconfirmed decisions\nin spec?";
-    "Unconfirmed decisions\nin spec?" -> "Invoke writing-plans skill" [label="no — go straight"];
-    "Unconfirmed decisions\nin spec?" -> "User reviews spec?" [label="yes — surface them"];
+    "Spec self-review\n(fix inline)" -> "Open decision or\nnew question?";
+    "Open decision or\nnew question?" -> "Invoke writing-plans skill" [label="no — go straight"];
+    "Open decision or\nnew question?" -> "User reviews spec?" [label="yes — surface them"];
     "User reviews spec?" -> "Write spec doc\n(skeleton of plan)" [label="changes requested"];
     "User reviews spec?" -> "Invoke writing-plans skill" [label="approved"];
 }
@@ -120,15 +120,26 @@ After writing the spec document, look at it with fresh eyes:
 Fix any issues inline. No need to re-review — just fix and move on.
 
 **Conditional Review Gate:**
-The design was already approved section-by-section, so do NOT reflexively stop for another review. Stop ONLY if, while writing the spec, you had to make a decision the user has not already confirmed — a choice the design discussion left open, an interpretation you picked to resolve an ambiguity, or a trade-off you introduced that wasn't on the table earlier.
+The design was already approved section-by-section, so do NOT reflexively stop for another review. Proceeding straight to writing-plans is the default; the spec should be fine and match what was discussed with the user, functionality- and implementation-wise.
 
-- **If such decisions exist:** surface them concisely and get a ruling before proceeding. Name the specific decision(s), not a generic "please review":
+Stop for user review in either of these cases:
 
-  > "Writing the spec, I had to decide X (chose A over B) and Y. These weren't settled earlier — confirm or redirect before I expand into the plan."
+1. **A consequential open decision survived the self-review** — one that meets ALL THREE tests:
+   - **Unconfirmed** — the design discussion genuinely never settled it (not merely "the user didn't say the exact words").
+   - **Consequential** — reasonable people could choose differently AND the choice shapes the implementation, so a wrong guess means meaningful rework, not a one-line edit.
+   - **Not derivable** — you can't resolve it from the approved design, existing codebase patterns, or an obvious sensible default.
+
+2. **A new, significant open question arose while writing the spec** that has more than one viable path forward — something the design discussion never anticipated. Surface it rather than silently picking a branch.
+
+Routine choices are NOT stop-worthy and do not count as open questions: file/module layout, naming, task ordering, error-message wording, which test to write first, and anything the approved design already implies. Every spec contains dozens of these — pick the sensible option, note it inline, and move on. **But if you are genuinely unsure whether something clears the bar above, ask — don't guess.** Surfacing one real question is far cheaper than building the wrong thing.
+
+- **If you need a ruling:** surface it concisely and get an answer before proceeding. Name the specific decision or question, not a generic "please review":
+
+  > "Writing the spec, I had to decide X (chose A over B), and a new question came up: Y has two viable paths (A or B). These weren't settled earlier — confirm or redirect before I expand into the plan."
 
   If they request changes, make them and re-run the spec self-review.
 
-- **If no such decisions exist:** do NOT stop. Proceed straight to writing-plans. The user can still interject; you don't need to solicit it.
+- **Otherwise (the common case):** do NOT stop. Proceed straight to writing-plans. The user can still interject; you don't need to solicit it.
 
 **Implementation:**
 

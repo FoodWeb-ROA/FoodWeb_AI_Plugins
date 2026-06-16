@@ -136,6 +136,8 @@ After writing the complete plan, look at the spec with fresh eyes and check the 
 
 If you find issues, fix them inline. No need to re-review — just fix and move on. If you find a spec requirement with no task, add the task.
 
+**Genuinely new fork:** Expanding the spec is mechanical — proceed by default and don't solicit review. But if it surfaces a genuinely new fork the spec never anticipated (more than one viable path forward, and a wrong guess means meaningful rework), surface it to the user before continuing rather than silently choosing — the same bar as brainstorming's Conditional Review Gate. Routine implementation choices don't qualify; when truly unsure, ask.
+
 ## Execution Handoff
 
 After saving the plan, **choose the execution mode yourself** from the plan's shape — don't ask the user. The plan you just wrote tells you what you need: how many tasks, how coupled they are, how parallelizable.
