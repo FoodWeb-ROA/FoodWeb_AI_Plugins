@@ -5,15 +5,15 @@ description: Use when executing implementation plans with independent tasks in t
 
 # Subagent-Driven Development
 
-Execute plan by dispatching fresh subagent per task, with two-stage review after each: spec compliance review first, then code quality review.
+Execute plan by dispatching fresh subagent per task, with a single joint review after each: one reviewer checks spec compliance AND code quality in one pass.
 
 **Why subagents:** You delegate tasks to specialized agents with isolated context. By precisely crafting their instructions and context, you ensure they stay focused and succeed at their task. They should never inherit your session's context or history — you construct exactly what they need. This also preserves your own context for coordination work.
 
-**Core principle:** Fresh subagent per task + two-stage review (spec then quality) = high quality, fast iteration
+**Core principle:** Fresh subagent per task + single joint review (spec + quality together) = high quality, fast iteration
 
 ## Execution Mode: Dynamic Workflow vs Turn-by-Turn
 
-This skill's per-task chain (implement → spec-review → fix loop → quality-review → fix loop) is deterministic orchestration. When **dynamic workflows are enabled** ([code.claude.com/docs/en/workflows](https://code.claude.com/docs/en/workflows)) you can encode the whole plan as one `Workflow` script instead of dispatching each subagent turn-by-turn from your own context. The script holds the loop and the intermediate results; your context holds only the final summary.
+This skill's per-task chain (implement → review → fix loop) is deterministic orchestration. When **dynamic workflows are enabled** ([code.claude.com/docs/en/workflows](https://code.claude.com/docs/en/workflows)) you can encode the whole plan as one `Workflow` script instead of dispatching each subagent turn-by-turn from your own context. The script holds the loop and the intermediate results; your context holds only the final summary.
 
 **Use a Workflow script when ALL hold:**
 
@@ -29,13 +29,13 @@ This skill's per-task chain (implement → spec-review → fix loop → quality-
 
 ### Encoding this skill as a Workflow
 
-Map the roles to `agent()` calls and the per-task chain to a `pipeline` stage. Inline the **filled** contents of `./implementer-prompt.md`, `./spec-reviewer-prompt.md`, and `./code-quality-reviewer-prompt.md` into the agent prompts (agents don't share your session; build exactly what they need). Force structured status/verdict with `schema`.
+Map the roles to `agent()` calls and the per-task chain to a `pipeline` stage. Inline the **filled** contents of `./implementer-prompt.md` and `./reviewer-prompt.md` into the agent prompts (agents don't share your session; build exactly what they need). Force structured status/verdict with `schema`.
 
 ```javascript
 export const meta = {
   name: 'execute-plan',
-  description: 'Implement plan task-by-task: implement → spec-review → quality-review, with fix loops',
-  phases: [{ title: 'Implement' }, { title: 'SpecReview' }, { title: 'QualityReview' }],
+  description: 'Implement plan task-by-task: implement → review, with fix loop',
+  phases: [{ title: 'Implement' }, { title: 'Review' }],
 }
 // TASKS: full text + context for each task, extracted from the plan by the controller (NOT read by agents).
 const STATUS = { type:'object', required:['status','summary'], properties:{
@@ -48,15 +48,10 @@ async function runTask(task, idx) {
   let impl = await agent(implementerPrompt(task), {label:`impl:${task.id}`, phase:'Implement', schema:STATUS})
   if (!impl || impl.status === 'BLOCKED' || impl.status === 'NEEDS_CONTEXT')
     return { task, blocked: true, impl }            // surface to controller; cannot ask user mid-run
-  for (let r = 0; r < 3; r++) {                      // bounded spec-review fix loop
-    const v = await agent(specReviewerPrompt(task), {label:`spec:${task.id}`, phase:'SpecReview', schema:VERDICT})
+  for (let r = 0; r < 3; r++) {                      // bounded review fix loop (spec + quality in one verdict)
+    const v = await agent(reviewerPrompt(task), {label:`review:${task.id}`, phase:'Review', schema:VERDICT})
     if (v?.pass) break
-    impl = await agent(fixPrompt(task, v.issues), {label:`spec-fix:${task.id}`, phase:'Implement', schema:STATUS})
-  }
-  for (let r = 0; r < 3; r++) {                      // bounded quality-review fix loop
-    const v = await agent(qualityReviewerPrompt(task), {label:`qual:${task.id}`, phase:'QualityReview', schema:VERDICT})
-    if (v?.pass) break
-    impl = await agent(fixPrompt(task, v.issues), {label:`qual-fix:${task.id}`, phase:'QualityReview', schema:STATUS})
+    impl = await agent(fixPrompt(task, v.issues), {label:`fix:${task.id}`, phase:'Implement', schema:STATUS})
   }
   return { task, blocked: false, impl }
 }
@@ -102,7 +97,7 @@ digraph when_to_use {
 
 - Same session (no context switch)
 - Fresh subagent per task (no context pollution)
-- Two-stage review after each task: spec compliance first, then code quality
+- Single joint review after each task: spec compliance + code quality in one pass
 - Faster iteration (no human-in-loop between tasks)
 
 ## The Process
@@ -117,12 +112,9 @@ digraph process {
         "Implementer subagent asks questions?" [shape=diamond];
         "Answer questions, provide context" [shape=box];
         "Implementer subagent implements, tests, commits, self-reviews" [shape=box];
-        "Dispatch spec reviewer subagent (./spec-reviewer-prompt.md)" [shape=box];
-        "Spec reviewer subagent confirms code matches spec?" [shape=diamond];
-        "Implementer subagent fixes spec gaps" [shape=box];
-        "Dispatch code quality reviewer subagent (./code-quality-reviewer-prompt.md)" [shape=box];
-        "Code quality reviewer subagent approves?" [shape=diamond];
-        "Implementer subagent fixes quality issues" [shape=box];
+        "Dispatch reviewer subagent (./reviewer-prompt.md)" [shape=box];
+        "Reviewer subagent approves spec + quality?" [shape=diamond];
+        "Implementer subagent fixes issues" [shape=box];
         "Mark task complete in TodoWrite" [shape=box];
     }
 
@@ -136,15 +128,11 @@ digraph process {
     "Implementer subagent asks questions?" -> "Answer questions, provide context" [label="yes"];
     "Answer questions, provide context" -> "Dispatch implementer subagent (./implementer-prompt.md)";
     "Implementer subagent asks questions?" -> "Implementer subagent implements, tests, commits, self-reviews" [label="no"];
-    "Implementer subagent implements, tests, commits, self-reviews" -> "Dispatch spec reviewer subagent (./spec-reviewer-prompt.md)";
-    "Dispatch spec reviewer subagent (./spec-reviewer-prompt.md)" -> "Spec reviewer subagent confirms code matches spec?";
-    "Spec reviewer subagent confirms code matches spec?" -> "Implementer subagent fixes spec gaps" [label="no"];
-    "Implementer subagent fixes spec gaps" -> "Dispatch spec reviewer subagent (./spec-reviewer-prompt.md)" [label="re-review"];
-    "Spec reviewer subagent confirms code matches spec?" -> "Dispatch code quality reviewer subagent (./code-quality-reviewer-prompt.md)" [label="yes"];
-    "Dispatch code quality reviewer subagent (./code-quality-reviewer-prompt.md)" -> "Code quality reviewer subagent approves?";
-    "Code quality reviewer subagent approves?" -> "Implementer subagent fixes quality issues" [label="no"];
-    "Implementer subagent fixes quality issues" -> "Dispatch code quality reviewer subagent (./code-quality-reviewer-prompt.md)" [label="re-review"];
-    "Code quality reviewer subagent approves?" -> "Mark task complete in TodoWrite" [label="yes"];
+    "Implementer subagent implements, tests, commits, self-reviews" -> "Dispatch reviewer subagent (./reviewer-prompt.md)";
+    "Dispatch reviewer subagent (./reviewer-prompt.md)" -> "Reviewer subagent approves spec + quality?";
+    "Reviewer subagent approves spec + quality?" -> "Implementer subagent fixes issues" [label="no"];
+    "Implementer subagent fixes issues" -> "Dispatch reviewer subagent (./reviewer-prompt.md)" [label="re-review"];
+    "Reviewer subagent approves spec + quality?" -> "Mark task complete in TodoWrite" [label="yes"];
     "Mark task complete in TodoWrite" -> "More tasks remain?";
     "More tasks remain?" -> "Dispatch implementer subagent (./implementer-prompt.md)" [label="yes"];
     "More tasks remain?" -> "Dispatch final code reviewer subagent for entire implementation" [label="no"];
@@ -172,7 +160,7 @@ Use the least powerful model that can handle each role to conserve cost and incr
 
 Implementer subagents report one of four statuses. Handle each appropriately:
 
-**DONE:** Proceed to spec compliance review.
+**DONE:** Proceed to the joint spec + quality review.
 
 **DONE_WITH_CONCERNS:** The implementer completed the work but flagged doubts. Read the concerns before proceeding. If the concerns are about correctness or scope, address them before review. If they're observations (e.g., "this file is getting large"), note them and proceed to review.
 
@@ -190,8 +178,7 @@ Implementer subagents report one of four statuses. Handle each appropriately:
 ## Prompt Templates
 
 - `./implementer-prompt.md` - Dispatch implementer subagent
-- `./spec-reviewer-prompt.md` - Dispatch spec compliance reviewer subagent
-- `./code-quality-reviewer-prompt.md` - Dispatch code quality reviewer subagent
+- `./reviewer-prompt.md` - Dispatch the joint reviewer subagent (spec compliance + code quality in one pass)
 
 ## Example Workflow
 
@@ -218,11 +205,10 @@ Implementer: "Got it. Implementing now..."
   - Self-review: Found I missed --force flag, added it
   - Committed
 
-[Dispatch spec compliance reviewer]
-Spec reviewer: ✅ Spec compliant - all requirements met, nothing extra
-
-[Get git SHAs, dispatch code quality reviewer]
-Code reviewer: Strengths: Good test coverage, clean. Issues: None. Approved.
+[Get git SHAs, dispatch joint reviewer]
+Reviewer:
+  - Spec compliance: ✅ all requirements met, nothing extra
+  - Code quality: Strengths: Good test coverage, clean. Issues: None. Approved.
 
 [Mark Task 1 complete]
 
@@ -238,25 +224,18 @@ Implementer:
   - Self-review: All good
   - Committed
 
-[Dispatch spec compliance reviewer]
-Spec reviewer: ❌ Issues:
-  - Missing: Progress reporting (spec says "report every 100 items")
-  - Extra: Added --json flag (not requested)
+[Dispatch joint reviewer]
+Reviewer:
+  - Spec compliance: ❌ Issues:
+    - Missing: Progress reporting (spec says "report every 100 items")
+    - Extra: Added --json flag (not requested)
+  - Code quality: Issues (Important): Magic number (100)
 
 [Implementer fixes issues]
-Implementer: Removed --json flag, added progress reporting
+Implementer: Removed --json flag, added progress reporting, extracted PROGRESS_INTERVAL constant
 
-[Spec reviewer reviews again]
-Spec reviewer: ✅ Spec compliant now
-
-[Dispatch code quality reviewer]
-Code reviewer: Strengths: Solid. Issues (Important): Magic number (100)
-
-[Implementer fixes]
-Implementer: Extracted PROGRESS_INTERVAL constant
-
-[Code reviewer reviews again]
-Code reviewer: ✅ Approved
+[Reviewer reviews again]
+Reviewer: ✅ Spec compliant + quality approved
 
 [Mark Task 2 complete]
 
@@ -294,16 +273,16 @@ Done!
 **Quality gates:**
 
 - Self-review catches issues before handoff
-- Two-stage review: spec compliance, then code quality
-- Review loops ensure fixes actually work
+- Single joint review: spec compliance + code quality in one pass
+- Review loop ensures fixes actually work
 - Spec compliance prevents over/under-building
 - Code quality ensures implementation is well-built
 
 **Cost:**
 
-- More subagent invocations (implementer + 2 reviewers per task)
+- More subagent invocations (implementer + 1 reviewer per task)
 - Controller does more prep work (extracting all tasks upfront)
-- Review loops add iterations
+- Review loop adds iterations
 - But catches issues early (cheaper than debugging later)
 
 ## Red Flags
@@ -311,17 +290,16 @@ Done!
 **Never:**
 
 - Start implementation on main/master branch without explicit user consent
-- Skip reviews (spec compliance OR code quality)
+- Skip the review (it covers both spec compliance AND code quality)
 - Proceed with unfixed issues
 - Dispatch multiple implementation subagents in parallel (conflicts)
 - Make subagent read plan file (provide full text instead)
 - Skip scene-setting context (subagent needs to understand where task fits)
 - Ignore subagent questions (answer before letting them proceed)
-- Accept "close enough" on spec compliance (spec reviewer found issues = not done)
-- Skip review loops (reviewer found issues = implementer fixes = review again)
+- Accept "close enough" on spec compliance (reviewer found spec gaps = not done)
+- Skip the review loop (reviewer found issues = implementer fixes = review again)
 - Let implementer self-review replace actual review (both are needed)
-- **Start code quality review before spec compliance is ✅** (wrong order)
-- Move to next task while either review has open issues
+- Move to next task while the review has open spec or quality issues
 
 **If subagent asks questions:**
 

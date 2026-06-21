@@ -173,9 +173,9 @@ Concrete results
 
 The description should ONLY describe triggering conditions. Do NOT summarize the skill's process or workflow in the description.
 
-**Why this matters:** Testing showed that when a description summarizes the skill's workflow, the agent may follow the description instead of reading the full skill. A description saying "code review between tasks" led to **one** review, even though the skill's flowchart showed **two** reviews (spec compliance then code quality).
+**Why this matters:** Testing showed that when a description summarizes the skill's workflow, the agent may follow the description instead of reading the full skill. A description saying "code review between tasks" led to a **shallow** review, even though the skill's flowchart required the reviewer to verify **both** spec compliance and code quality.
 
-When the description was changed to just triggering conditions (no workflow summary), the agent read the flowchart and followed the two-stage review.
+When the description was changed to just triggering conditions (no workflow summary), the agent read the flowchart and followed the full joint review.
 
 **The trap:** Descriptions that summarize workflow become a shortcut the agent takes. The skill body becomes documentation the agent skips.
 

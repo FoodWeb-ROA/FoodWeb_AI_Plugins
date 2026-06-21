@@ -149,7 +149,7 @@ Score the plan against these signals:
 - Many tasks (roughly 4+), or the plan spans multiple files/components.
 - Tasks are independent — they touch disjoint files or have no ordering dependency, so fresh subagents can run them without shared in-session state.
 - Each task is self-contained enough to hand to an agent with zero prior context (your bite-sized tasks already are).
-- Context would otherwise bloat: long plan, lots of code per task, or you want a clean two-stage review per task.
+- Context would otherwise bloat: long plan, lots of code per task, or you want a clean joint spec + quality review per task.
 
 **Use Inline Execution when the work is small or tightly coupled:**
 
@@ -164,7 +164,7 @@ When signals conflict (e.g. many tasks but tightly sequential), prefer the mode 
 **If Subagent-Driven:**
 
 - **REQUIRED SUB-SKILL:** Use superpowers:subagent-driven-development
-- Fresh subagent per task + two-stage review
+- Fresh subagent per task + single joint review (spec + quality)
 
 **If Inline Execution:**
 
