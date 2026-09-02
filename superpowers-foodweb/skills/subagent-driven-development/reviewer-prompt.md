@@ -5,7 +5,7 @@ Use this template when dispatching the reviewer subagent after an implementer re
 **Purpose:** In one pass, verify the implementer built what was requested (nothing more, nothing less) AND that the implementation is well-built (clean, tested, maintainable).
 
 ```
-Task tool (superpowers:code-reviewer):
+Task tool (superpowers-foodweb:code-reviewer):
   Use template at requesting-code-review/code-reviewer.md
 
   WHAT_WAS_IMPLEMENTED: [from implementer's report]

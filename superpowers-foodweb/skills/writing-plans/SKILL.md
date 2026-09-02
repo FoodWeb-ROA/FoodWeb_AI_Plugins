@@ -13,7 +13,7 @@ Assume they are a skilled developer, but know almost nothing about our toolset o
 
 **Announce at start:** "I'm using the writing-plans skill to create the implementation plan."
 
-**Context:** Run in a dedicated worktree only if the user opted into one at session start (see superpowers:using-git-worktrees); otherwise work in the current checkout. Never auto-create a worktree or stop to ask.
+**Context:** Run in a dedicated worktree only if the user opted into one at session start (see superpowers-foodweb:using-git-worktrees); otherwise work in the current checkout. Never auto-create a worktree or stop to ask.
 
 **Expand the spec file in place — do not start a new document.** Brainstorming wrote the spec as the skeleton of this plan: the `.md` file already holds the section/task structure and the design decision behind each section. Your job is to expand that same file, filling each section with the technical depth it requires — exact file paths, complete code, test code, commands. Keep the skeleton's structure and decisions; add the implementation detail underneath. The spec and the plan are one evolving document, not two.
 
@@ -51,7 +51,7 @@ This structure informs the task decomposition. Each task should produce self-con
 ```markdown
 # [Feature Name] Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers-foodweb:subagent-driven-development (recommended) or superpowers-foodweb:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** [One sentence describing what this builds]
 
@@ -163,10 +163,10 @@ When signals conflict (e.g. many tasks but tightly sequential), prefer the mode 
 
 **If Subagent-Driven:**
 
-- **REQUIRED SUB-SKILL:** Use superpowers:subagent-driven-development
+- **REQUIRED SUB-SKILL:** Use superpowers-foodweb:subagent-driven-development
 - Fresh subagent per task + single joint review (spec + quality)
 
 **If Inline Execution:**
 
-- **REQUIRED SUB-SKILL:** Use superpowers:executing-plans
+- **REQUIRED SUB-SKILL:** Use superpowers-foodweb:executing-plans
 - Batch execution with checkpoints for review

@@ -69,7 +69,7 @@ return { results }
 - **No mid-run questions or human escalation.** The implementer-prompt's "ask before starting" step and the `BLOCKED`/`NEEDS_CONTEXT` human-escalation path can't pause for you. The script returns blocked tasks in its result; you read them when the run finishes, resolve them, then resume (cached tasks return instantly) or re-run.
 - **Sequential vs parallel.** Plain `for`-await keeps the no-parallel-implementers red flag satisfied on a shared tree. Only go parallel with `isolation:'worktree'` per task, then merge.
 - **Fix loops are bounded** (e.g. 3 rounds) — a workflow can't loop forever waiting on you. If a task still fails after the bound, treat it like a blocker and surface it.
-- After the run returns, do the final whole-implementation review and `superpowers:finishing-a-development-branch` yourself, in-session.
+- After the run returns, do the final whole-implementation review and `superpowers-foodweb:finishing-a-development-branch` yourself, in-session.
 
 The Model Selection, Handling Implementer Status, Red Flags, and review semantics below apply to **both** modes — in workflow mode they become the `model:` arg, the status `schema`, and the loop structure rather than turn-by-turn judgment.
 
@@ -121,7 +121,7 @@ digraph process {
     "Read plan, extract all tasks with full text, note context, create TodoWrite" [shape=box];
     "More tasks remain?" [shape=diamond];
     "Dispatch final code reviewer subagent for entire implementation" [shape=box];
-    "Use superpowers:finishing-a-development-branch" [shape=box style=filled fillcolor=lightgreen];
+    "Use superpowers-foodweb:finishing-a-development-branch" [shape=box style=filled fillcolor=lightgreen];
 
     "Read plan, extract all tasks with full text, note context, create TodoWrite" -> "Dispatch implementer subagent (./implementer-prompt.md)";
     "Dispatch implementer subagent (./implementer-prompt.md)" -> "Implementer subagent asks questions?";
@@ -136,7 +136,7 @@ digraph process {
     "Mark task complete in TodoWrite" -> "More tasks remain?";
     "More tasks remain?" -> "Dispatch implementer subagent (./implementer-prompt.md)" [label="yes"];
     "More tasks remain?" -> "Dispatch final code reviewer subagent for entire implementation" [label="no"];
-    "Dispatch final code reviewer subagent for entire implementation" -> "Use superpowers:finishing-a-development-branch";
+    "Dispatch final code reviewer subagent for entire implementation" -> "Use superpowers-foodweb:finishing-a-development-branch";
 }
 ```
 
@@ -323,15 +323,15 @@ Done!
 
 **Required workflow skills:**
 
-- **superpowers:using-git-worktrees** - ONLY if the user opted into a worktree at session start; otherwise work in the current checkout. Never auto-create a worktree or stop to ask.
-- **superpowers:writing-plans** - Creates the plan this skill executes
-- **superpowers:requesting-code-review** - Code review template for reviewer subagents
-- **superpowers:finishing-a-development-branch** - Complete development after all tasks
+- **superpowers-foodweb:using-git-worktrees** - ONLY if the user opted into a worktree at session start; otherwise work in the current checkout. Never auto-create a worktree or stop to ask.
+- **superpowers-foodweb:writing-plans** - Creates the plan this skill executes
+- **superpowers-foodweb:requesting-code-review** - Code review template for reviewer subagents
+- **superpowers-foodweb:finishing-a-development-branch** - Complete development after all tasks
 
 **Subagents should use:**
 
-- **superpowers:test-driven-development** - Subagents follow TDD for each task
+- **superpowers-foodweb:test-driven-development** - Subagents follow TDD for each task
 
 **Alternative workflow:**
 
-- **superpowers:executing-plans** - Use for parallel session instead of same-session execution
+- **superpowers-foodweb:executing-plans** - Use for parallel session instead of same-session execution
