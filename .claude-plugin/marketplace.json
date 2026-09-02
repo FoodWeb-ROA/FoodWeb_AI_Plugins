@@ -13,7 +13,7 @@
       "name": "superpowers-foodweb",
       "source": "./superpowers-foodweb",
       "description": "FoodWeb fork of obra/superpowers: skills for TDD, debugging, planning, and multi-agent orchestration. Customized for FoodWeb — worktrees pinned to .worktrees/ and opt-in only, dynamic-workflow-aware execution, generic (platform-agnostic) tooling.",
-      "version": "5.0.7",
+      "version": "5.1.0",
       "author": {
         "name": "FoodWeb",
         "email": "arnav@foodweb.ai"

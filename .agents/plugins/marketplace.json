@@ -1,0 +1,20 @@
+{
+  "name": "foodweb-ai-plugins",
+  "interface": {
+    "displayName": "FoodWeb AI Plugins"
+  },
+  "plugins": [
+    {
+      "name": "superpowers-foodweb",
+      "source": {
+        "source": "local",
+        "path": "./superpowers-foodweb"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 {
   "name": "superpowers-foodweb",
-  "description": "FoodWeb fork of obra/superpowers: skills for TDD, debugging, planning, and multi-agent orchestration, customized for FoodWeb workflows.",
   "version": "5.1.0",
+  "description": "FoodWeb fork of obra/superpowers: skills for TDD, debugging, planning, and multi-agent orchestration, customized for FoodWeb workflows.",
   "author": {
     "name": "FoodWeb",
     "email": "arnav@foodweb.ai"
@@ -15,5 +15,10 @@
     "planning",
     "workflows",
     "foodweb"
-  ]
+  ],
+  "skills": "./skills/",
+  "hooks": "./hooks/hooks.json",
+  "interface": {
+    "displayName": "Superpowers (FoodWeb)"
+  }
 }
