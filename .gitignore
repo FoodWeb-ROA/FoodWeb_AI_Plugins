@@ -4,3 +4,7 @@
 # OS / editor cruft
 .DS_Store
 *.swp
+
+# laterm renderer deps (installed on first run)
+laterm/node_modules/
+laterm/package-lock.json

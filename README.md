@@ -7,6 +7,7 @@ FoodWeb's internal plugin marketplace for [Claude Code](https://code.claude.com/
 | Plugin | What |
 |--------|------|
 | `superpowers-foodweb` | FoodWeb fork of [obra/superpowers](https://github.com/obra/superpowers) — skills for TDD, debugging, planning, code review, and multi-agent orchestration. FoodWeb customizations: worktrees pinned to `.worktrees/` and **opt-in only**, dynamic-workflow-aware plan execution, platform-agnostic tooling. |
+| `laterm` | LaTeX math rendered in the terminal. A PTY wrapper (`laterm claude`) rewrites `$...$` / `$$...$$` in Claude Code's output into terminal inline-image escapes (iTerm2 / Kitty protocols), plus a skill that keeps Claude's math renderable. See [`laterm/README.md`](laterm/README.md). |
 
 ## Install (per developer)
 

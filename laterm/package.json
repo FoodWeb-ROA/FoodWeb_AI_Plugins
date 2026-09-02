@@ -1,0 +1,18 @@
+{
+  "name": "laterm-claude",
+  "version": "0.1.0",
+  "private": true,
+  "description": "PTY-level LaTeX renderer for Claude Code, using terminal inline-image protocols.",
+  "license": "MIT",
+  "bin": {
+    "laterm": "bin/laterm"
+  },
+  "dependencies": {
+    "@resvg/resvg-js": "^2.6.2",
+    "mathjax-full": "^3.2.2",
+    "node-pty": "^1.1.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

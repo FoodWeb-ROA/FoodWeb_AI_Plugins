@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+# laterm — run a command (default: claude) with terminal LaTeX rendering.
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PLUGIN_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+
+if ! command -v node >/dev/null 2>&1; then
+  echo "laterm: node is required (>=18)" >&2
+  exit 1
+fi
+
+if [ ! -d "${PLUGIN_ROOT}/node_modules/node-pty" ] \
+  || [ ! -d "${PLUGIN_ROOT}/node_modules/mathjax-full" ] \
+  || [ ! -d "${PLUGIN_ROOT}/node_modules/@resvg/resvg-js" ]; then
+  echo "laterm: installing renderer dependencies (one time)..." >&2
+  ( cd "${PLUGIN_ROOT}" && npm install --omit=dev --no-audit --no-fund ) >&2
+fi
+
+# node-pty ships spawn-helper without the exec bit under some npm/tar paths;
+# pty.fork then dies with a bare "posix_spawnp failed".
+for helper in "${PLUGIN_ROOT}"/node_modules/node-pty/prebuilds/*/spawn-helper; do
+  if [ -f "$helper" ] && [ ! -x "$helper" ]; then chmod +x "$helper"; fi
+done
+
+exec node "${PLUGIN_ROOT}/src/cli.js" "$@"

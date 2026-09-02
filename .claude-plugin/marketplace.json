@@ -26,6 +26,23 @@
         "workflows",
         "foodweb"
       ]
+    },
+    {
+      "name": "laterm",
+      "source": "./laterm",
+      "description": "Renders LaTeX math in the terminal while you use Claude Code. A PTY wrapper (`laterm claude`) rewrites $...$ / $$...$$ in the output stream into inline-image escapes (iTerm2 / Kitty protocols), plus a skill that keeps Claude's math renderable.",
+      "version": "0.1.0",
+      "author": {
+        "name": "FoodWeb",
+        "email": "arnav@foodweb.ai"
+      },
+      "keywords": [
+        "latex",
+        "math",
+        "terminal",
+        "mathjax",
+        "rendering"
+      ]
     }
   ]
 }

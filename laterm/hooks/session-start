@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+# SessionStart hook: when the session is running under the laterm wrapper, load
+# the LaTeX output contract into context so every equation is renderable.
+set -euo pipefail
+
+# Not wrapped -> nothing to render, so stay silent rather than making Claude
+# emit LaTeX that will show up as raw source.
+if [ "${LATERM_ACTIVE:-}" != "1" ]; then
+  exit 0
+fi
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PLUGIN_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+
+skill_content=$(cat "${PLUGIN_ROOT}/skills/latex-math/SKILL.md" 2>/dev/null || echo "")
+if [ -z "$skill_content" ]; then
+  exit 0
+fi
+
+escape_for_json() {
+  local s="$1"
+  s="${s//\\/\\\\}"
+  s="${s//\"/\\\"}"
+  s="${s//$'\n'/\\n}"
+  s="${s//$'\r'/\\r}"
+  s="${s//$'\t'/\\t}"
+  printf '%s' "$s"
+}
+
+skill_escaped=$(escape_for_json "$skill_content")
+context="<EXTREMELY_IMPORTANT>\nThis terminal renders LaTeX math as images. The 'laterm:latex-math' skill below is ACTIVE for this whole session — follow it for every mathematical answer without being asked, and do not invoke it as a skill.\n\n${skill_escaped}\n</EXTREMELY_IMPORTANT>"
+
+printf '{\n  "hookSpecificOutput": {\n    "hookEventName": "SessionStart",\n    "additionalContext": "%s"\n  }\n}\n' "$context"
+
+exit 0

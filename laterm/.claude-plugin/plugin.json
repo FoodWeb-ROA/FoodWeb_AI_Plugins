@@ -1,0 +1,19 @@
+{
+  "name": "laterm",
+  "description": "Renders LaTeX math in the terminal while you use Claude Code. A PTY wrapper (`laterm claude`) rewrites $...$ / $$...$$ in the output stream into inline-image escapes, plus a skill that keeps Claude's math in renderable LaTeX.",
+  "version": "0.1.0",
+  "author": {
+    "name": "FoodWeb",
+    "email": "arnav@foodweb.ai"
+  },
+  "homepage": "https://github.com/MaxwellsEquation/LaTerM",
+  "license": "MIT",
+  "keywords": [
+    "latex",
+    "math",
+    "terminal",
+    "katex",
+    "mathjax",
+    "rendering"
+  ]
+}
